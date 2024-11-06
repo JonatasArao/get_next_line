@@ -6,14 +6,14 @@
 /*   By: jarao-de <jarao-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/04 08:36:37 by jarao-de          #+#    #+#             */
-/*   Updated: 2024/11/06 10:17:19 by jarao-de         ###   ########.fr       */
+/*   Updated: 2024/11/06 15:29:32 by jarao-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 42
+#  define BUFFER_SIZE 5
 # endif
 # include <unistd.h>
 # include <stdlib.h>
