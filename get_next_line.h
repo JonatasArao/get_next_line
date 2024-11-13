@@ -6,7 +6,7 @@
 /*   By: jarao-de <jarao-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/04 08:36:37 by jarao-de          #+#    #+#             */
-/*   Updated: 2024/11/06 15:29:32 by jarao-de         ###   ########.fr       */
+/*   Updated: 2024/11/13 22:12:44 by jarao-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,7 @@
 # include <unistd.h>
 # include <stdlib.h>
 
-size_t	ft_strlen(const char *s);
-
 char	*ft_strchr(const char *s, int c);
-
-char	*ft_strdup(const char *s);
 
 char	*ft_substr(char const *s, unsigned int start, size_t len);
 

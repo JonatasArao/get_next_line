@@ -6,7 +6,7 @@
 /*   By: jarao-de <jarao-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/04 08:36:43 by jarao-de          #+#    #+#             */
-/*   Updated: 2024/11/11 16:29:32 by jarao-de         ###   ########.fr       */
+/*   Updated: 2024/11/13 23:17:47 by jarao-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static char	*read_until_newline(int fd, char *remainder)
 	if (!buffer)
 		return (NULL);
 	bytes_readed = 1;
-	while (bytes_readed > 0)
+	while (bytes_readed > 0 && !ft_strchr(remainder, '\n'))
 	{
 		bytes_readed = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_readed <= 0)
@@ -31,11 +31,13 @@ static char	*read_until_newline(int fd, char *remainder)
 		temp = remainder;
 		remainder = ft_strjoin(remainder, buffer);
 		free(temp);
-		if (ft_strchr(buffer, '\n'))
-			break ;
 	}
 	free(buffer);
-	buffer = NULL;
+	if (bytes_readed == -1)
+	{
+		free(remainder);
+		remainder = NULL;
+	}
 	return (remainder);
 }
 
@@ -59,15 +61,25 @@ static char	*extract_line(char *remainder)
 
 static char	*update_remainder(char *remainder)
 {
-	char	*newline_pointer;
-	char	*new_remainder;
+	char			*new_remainder;
+	unsigned int	start;
+	size_t			end;
 
-	newline_pointer = ft_strchr(remainder, '\n');
-	if (newline_pointer && newline_pointer + 1)
-		new_remainder = ft_strdup(newline_pointer + 1);
+	start = 0;
+	while (remainder[start] != '\n' && remainder[start])
+		start++;
+	if (remainder[start] == '\n')
+	{
+		start++;
+		end = start;
+		while (remainder[end])
+			end++;
+		new_remainder = ft_substr(remainder, start, end);
+	}
 	else
 		new_remainder = NULL;
 	free(remainder);
+	remainder = new_remainder;
 	return (new_remainder);
 }
 
@@ -76,11 +88,18 @@ char	*get_next_line(int fd)
 	static char	*remainder;
 	char		*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (!remainder)
-		remainder = ft_strdup("");
+	{
+		remainder = (char *)malloc(1);
+		if (!remainder)
+			return (NULL);
+		remainder[0] = '\0';
+	}
 	remainder = read_until_newline(fd, remainder);
+	if (!remainder)
+		return (NULL);
 	line = extract_line(remainder);
 	if (!line)
 	{
