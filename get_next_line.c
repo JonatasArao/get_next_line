@@ -6,7 +6,7 @@
 /*   By: jarao-de <jarao-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/04 08:36:43 by jarao-de          #+#    #+#             */
-/*   Updated: 2024/11/13 23:17:47 by jarao-de         ###   ########.fr       */
+/*   Updated: 2024/11/13 23:53:13 by jarao-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,46 +41,33 @@ static char	*read_until_newline(int fd, char *remainder)
 	return (remainder);
 }
 
-static char	*extract_line(char *remainder)
+static char	*extract_line(char **remainder)
 {
 	char	*line;
-	size_t	len;
+	char	*rest;
+	size_t	line_len;
+	size_t	start_rest;
 
-	if (remainder[0] == '\0')
+	if ((*remainder)[0] == '\0')
 		return (NULL);
-	len = 0;
-	while (remainder[len] != '\n' && remainder[len])
-		len++;
-	if (remainder[len] == '\n')
-		len++;
-	line = ft_substr(remainder, 0, len);
+	line_len = 0;
+	while ((*remainder)[line_len] != '\n' && (*remainder)[line_len])
+		line_len++;
+	if ((*remainder)[line_len] == '\n')
+		line_len++;
+	line = ft_substr(*remainder, 0, line_len);
 	if (!line)
 		return (NULL);
-	return (line);
-}
-
-static char	*update_remainder(char *remainder)
-{
-	char			*new_remainder;
-	unsigned int	start;
-	size_t			end;
-
-	start = 0;
-	while (remainder[start] != '\n' && remainder[start])
-		start++;
-	if (remainder[start] == '\n')
-	{
-		start++;
-		end = start;
-		while (remainder[end])
-			end++;
-		new_remainder = ft_substr(remainder, start, end);
-	}
+	start_rest = line_len;
+	while ((*remainder)[start_rest])
+		start_rest++;
+	if (start_rest > line_len)
+		rest = ft_substr(*remainder, line_len, start_rest - line_len);
 	else
-		new_remainder = NULL;
-	free(remainder);
-	remainder = new_remainder;
-	return (new_remainder);
+		rest = NULL;
+	free(*remainder);
+	*remainder = rest;
+	return (line);
 }
 
 char	*get_next_line(int fd)
@@ -100,13 +87,12 @@ char	*get_next_line(int fd)
 	remainder = read_until_newline(fd, remainder);
 	if (!remainder)
 		return (NULL);
-	line = extract_line(remainder);
+	line = extract_line(&remainder);
 	if (!line)
 	{
 		free(remainder);
 		remainder = NULL;
 		return (NULL);
 	}
-	remainder = update_remainder(remainder);
 	return (line);
 }
