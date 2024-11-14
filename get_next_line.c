@@ -6,11 +6,21 @@
 /*   By: jarao-de <jarao-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/04 08:36:43 by jarao-de          #+#    #+#             */
-/*   Updated: 2024/11/13 23:53:13 by jarao-de         ###   ########.fr       */
+/*   Updated: 2024/11/14 17:00:18 by jarao-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+static void	*ft_delpointer(void **ptr)
+{
+	if (ptr && *ptr)
+	{
+		free(*ptr);
+		*ptr = NULL;
+	}
+	return (NULL);
+}
 
 static char	*read_until_newline(int fd, char *remainder)
 {
@@ -20,7 +30,7 @@ static char	*read_until_newline(int fd, char *remainder)
 
 	buffer = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
-		return (NULL);
+		return (ft_delpointer((void *) &remainder));
 	bytes_readed = 1;
 	while (bytes_readed > 0 && !ft_strchr(remainder, '\n'))
 	{
@@ -31,13 +41,12 @@ static char	*read_until_newline(int fd, char *remainder)
 		temp = remainder;
 		remainder = ft_strjoin(remainder, buffer);
 		free(temp);
+		if (!remainder)
+			break ;
 	}
 	free(buffer);
-	if (bytes_readed == -1)
-	{
-		free(remainder);
-		remainder = NULL;
-	}
+	if (bytes_readed < 0 || !remainder)
+		ft_delpointer((void *) &remainder);
 	return (remainder);
 }
 
@@ -46,7 +55,7 @@ static char	*extract_line(char **remainder)
 	char	*line;
 	char	*rest;
 	size_t	line_len;
-	size_t	start_rest;
+	size_t	rest_len;
 
 	if ((*remainder)[0] == '\0')
 		return (NULL);
@@ -58,11 +67,11 @@ static char	*extract_line(char **remainder)
 	line = ft_substr(*remainder, 0, line_len);
 	if (!line)
 		return (NULL);
-	start_rest = line_len;
-	while ((*remainder)[start_rest])
-		start_rest++;
-	if (start_rest > line_len)
-		rest = ft_substr(*remainder, line_len, start_rest - line_len);
+	rest_len = line_len;
+	while ((*remainder)[rest_len])
+		rest_len++;
+	if (rest_len > line_len)
+		rest = ft_substr(*remainder, line_len, rest_len - line_len);
 	else
 		rest = NULL;
 	free(*remainder);
@@ -89,10 +98,6 @@ char	*get_next_line(int fd)
 		return (NULL);
 	line = extract_line(&remainder);
 	if (!line)
-	{
-		free(remainder);
-		remainder = NULL;
-		return (NULL);
-	}
+		ft_delpointer((void *) &remainder);
 	return (line);
 }
