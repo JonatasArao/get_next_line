@@ -6,7 +6,7 @@
 /*   By: jarao-de <jarao-de@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/04 08:36:43 by jarao-de          #+#    #+#             */
-/*   Updated: 2024/11/14 17:00:18 by jarao-de         ###   ########.fr       */
+/*   Updated: 2024/11/16 01:16:53 by jarao-de         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ static char	*read_until_newline(int fd, char *remainder)
 	buffer = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (ft_delpointer((void *) &remainder));
-	bytes_readed = 1;
-	while (bytes_readed > 0 && !ft_strchr(remainder, '\n'))
+	bytes_readed = 0;
+	while (remainder && !ft_strchr(remainder, '\n'))
 	{
 		bytes_readed = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_readed <= 0)
@@ -41,11 +41,9 @@ static char	*read_until_newline(int fd, char *remainder)
 		temp = remainder;
 		remainder = ft_strjoin(remainder, buffer);
 		free(temp);
-		if (!remainder)
-			break ;
 	}
 	free(buffer);
-	if (bytes_readed < 0 || !remainder)
+	if (!remainder || bytes_readed < 0)
 		ft_delpointer((void *) &remainder);
 	return (remainder);
 }
@@ -55,7 +53,7 @@ static char	*extract_line(char **remainder)
 	char	*line;
 	char	*rest;
 	size_t	line_len;
-	size_t	rest_len;
+	size_t	remainder_len;
 
 	if ((*remainder)[0] == '\0')
 		return (NULL);
@@ -67,11 +65,11 @@ static char	*extract_line(char **remainder)
 	line = ft_substr(*remainder, 0, line_len);
 	if (!line)
 		return (NULL);
-	rest_len = line_len;
-	while ((*remainder)[rest_len])
-		rest_len++;
-	if (rest_len > line_len)
-		rest = ft_substr(*remainder, line_len, rest_len - line_len);
+	remainder_len = line_len;
+	while ((*remainder)[remainder_len])
+		remainder_len++;
+	if (remainder_len > line_len)
+		rest = ft_substr(*remainder, line_len, remainder_len - line_len);
 	else
 		rest = NULL;
 	free(*remainder);
@@ -88,7 +86,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	if (!remainder)
 	{
-		remainder = (char *)malloc(1);
+		remainder = (char *)malloc(1 * sizeof(char));
 		if (!remainder)
 			return (NULL);
 		remainder[0] = '\0';
